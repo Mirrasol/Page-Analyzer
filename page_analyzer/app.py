@@ -14,20 +14,20 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 
 @app.route('/')
-def index():
+def main_page():
     messages = get_flashed_messages(with_categories=True)
     return render_template(
-        'index.html',
+        'main_page.html',
         messages=messages,
     )
 
 
 @app.route('/urls')
 def get_urls():
-    urls = future_get_database()
+    urls = PLACEHOLDER_get_database()
     messages = get_flashed_messages(with_categories=True)
     return render_template(
-        'show.html',
+        'index.html',
         urls=urls,
         messages=messages,
     )
