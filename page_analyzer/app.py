@@ -9,15 +9,17 @@ from flask import (
 from dotenv import load_dotenv
 from page_analyzer.validator import validate
 from page_analyzer.normalizer import normalize
+from datetime import datetime
 import psycopg2
 import os
 
 load_dotenv()
-DATABASE_URL = os.getenv('DATABASE_URL')
-conn = psycopg2.connect(DATABASE_URL)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+conn = psycopg2.connect(DATABASE_URL)
 
 
 @app.route('/')
@@ -27,7 +29,10 @@ def main_page():
 
 @app.route('/urls')
 def get_urls():
-    urls = PLACEHOLDER_get_database()
+    with conn.cursor as curs:
+        curs.execute('SELECT * FROM urls')
+        urls = curs.fetchall()
+
     return render_template(
         'index.html',
         urls=urls,
@@ -36,8 +41,10 @@ def get_urls():
 
 @app.route('/urls', methods=['POST'])
 def post_url():
-    urls = PLACEHOLDER_get_database()
-    user_url = request.form.get('url')
+    with conn.cursor as curs:
+        curs.execute('SELECT * FROM urls')
+        urls = curs.fetchall()
+    user_url = request.form.to_dict()['url']
     normalized_url = normalize(user_url)
 
     error = validate(normalized_url)
@@ -53,14 +60,18 @@ def post_url():
         flash('Страница уже существует', 'warning')
         return redirect(url_for('get_url', id=url_id))
 
-    urls.PLACEHOLDER_save(normalized_url)
+    with conn.cursor as curs:
+        current_date = datetime.now().date()
+        curs.execute(f'INSERT INTO urls (name, created_at) VALUES (%s, %s), ({normalized_url}, {current_date})')
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('get_url', id=url_id))
 
 
 @app.route('/urls/<int:id>')
 def get_url(id):
-    urls = PLACEHOLDER_get_database()
+    with conn.cursor as curs:
+        curs.execute('SELECT * FROM urls')
+        urls = curs.fetchall()
     url = urls.PLACEHOLDER_find(id)
 
     if not url:
