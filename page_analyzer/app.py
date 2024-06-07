@@ -21,40 +21,39 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 @app.route('/')
 def main_page():
-    messages = get_flashed_messages(with_categories=True)
-    return render_template(
-        'main_page.html',
-        messages=messages,
-    )
+    return render_template('main_page.html')
 
 
 @app.route('/urls')
 def get_urls():
     urls = PLACEHOLDER_get_database()
-    messages = get_flashed_messages(with_categories=True)
     return render_template(
         'index.html',
         urls=urls,
-        messages=messages,
     )
 
 
 @app.route('/urls', methods=['POST'])
 def post_url():
     urls = PLACEHOLDER_get_database()
-    url = request.form.to_dict()
-    errors = PLACEHOLDER_validate(url)
+    new_url = request.form.get('url')
+    normalized_url = PLACEHOLDER_normalize_url(new_url)
 
+    errors = PLACEHOLDER_validate(normalized_url)
     if errors:
+        flash('Некорректный URL', 'danger')
         return render_template(
             'main_page.html',
-            url=url,
-            errors=errors
         ), 422
+
+    url_id = PLACEHOLDER_find_id(normalized_url)
+    if url_id:
+        flash('Страница уже существует', 'warning')
+        return redirect(url_for('get_url', id=url_id))
 
     urls.PLACEHOLDER_save(url)
     flash('Страница успешно добавлена', 'success')
-    return redirect(url_for('get_url(id)'), code=302)
+    return redirect(url_for('get_url', id=url_id))
 
 
 @app.route('/urls/<int:id>')
