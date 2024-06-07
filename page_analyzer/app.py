@@ -1,9 +1,15 @@
-from flask import Flask, render_template, request
+from flask import (
+    Flask,
+    flash,
+    get_flashed_messages,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from dotenv import load_dotenv
 import psycopg2
 import os
-import datetime
-import requests
 
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
@@ -30,4 +36,36 @@ def get_urls():
         'index.html',
         urls=urls,
         messages=messages,
+    )
+
+
+@app.route('/urls', methods=['POST'])
+def post_url():
+    urls = PLACEHOLDER_get_database()
+    url = request.form.to_dict()
+    errors = PLACEHOLDER_validate(url)
+
+    if errors:
+        return render_template(
+            'main_page.html',
+            url=url,
+            errors=errors
+        ), 422
+
+    urls.PLACEHOLDER_save(url)
+    flash('Страница успешно добавлена', 'success')
+    return redirect(url_for('get_url(id)'), code=302)
+
+
+@app.route('/urls/<int:id>')
+def get_url(id):
+    urls = PLACEHOLDER_get_database()
+    url = urls.PLACEHOLDER_find(id)
+
+    if not url:
+        return 'Page not found', 404
+
+    return render_template(
+        'show.html',
+        url=url,
     )
