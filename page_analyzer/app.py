@@ -7,8 +7,8 @@ from flask import (
     url_for,
 )
 from dotenv import load_dotenv
-from validator import validate
-from normalizer import normalize
+from page_analyzer.validator import validate
+from page_analyzer.normalizer import normalize
 import psycopg2
 import os
 
