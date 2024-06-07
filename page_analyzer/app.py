@@ -8,6 +8,7 @@ from flask import (
 )
 from dotenv import load_dotenv
 from validator import validate
+from normalizer import normalize
 import psycopg2
 import os
 
@@ -36,15 +37,15 @@ def get_urls():
 @app.route('/urls', methods=['POST'])
 def post_url():
     urls = PLACEHOLDER_get_database()
-    new_url = request.form.get('url')
-    normalized_url = PLACEHOLDER_normalize_url(new_url)
+    user_url = request.form.get('url')
+    normalized_url = normalize(user_url)
 
     error = validate(normalized_url)
     if error:
         flash(error, 'danger')
         return render_template(
             'main_page.html',
-            url=new_url,
+            url=user_url,
         ), 422
 
     url_id = PLACEHOLDER_find_id(normalized_url)
