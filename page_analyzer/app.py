@@ -1,13 +1,13 @@
 from flask import (
     Flask,
     flash,
-    get_flashed_messages,
     redirect,
     render_template,
     request,
     url_for,
 )
 from dotenv import load_dotenv
+from validator import validate
 import psycopg2
 import os
 
@@ -39,11 +39,12 @@ def post_url():
     new_url = request.form.get('url')
     normalized_url = PLACEHOLDER_normalize_url(new_url)
 
-    errors = PLACEHOLDER_validate(normalized_url)
-    if errors:
-        flash('Некорректный URL', 'danger')
+    error = validate(normalized_url)
+    if error:
+        flash(error, 'danger')
         return render_template(
             'main_page.html',
+            url=new_url,
         ), 422
 
     url_id = PLACEHOLDER_find_id(normalized_url)
@@ -51,7 +52,7 @@ def post_url():
         flash('Страница уже существует', 'warning')
         return redirect(url_for('get_url', id=url_id))
 
-    urls.PLACEHOLDER_save(url)
+    urls.PLACEHOLDER_save(normalized_url)
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('get_url', id=url_id))
 
