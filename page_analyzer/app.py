@@ -6,20 +6,15 @@ from flask import (
     request,
     url_for,
 )
-from dotenv import load_dotenv
 from page_analyzer.validator import validate
 from page_analyzer.normalizer import normalize
+from page_analyzer.db_logic import open_connection
+from psycopg2.extras import NamedTupleCursor
 from datetime import datetime
-import psycopg2
 import os
-
-load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-
-DATABASE_URL = os.getenv('DATABASE_URL')
-conn = psycopg2.connect(DATABASE_URL)
 
 
 @app.route('/')
@@ -29,9 +24,10 @@ def main_page():
 
 @app.route('/urls')
 def get_urls():
-    with conn.cursor as curs:
-        curs.execute('SELECT * FROM urls')
-        urls = curs.fetchall()
+    with open_connection() as conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+            curs.execute("SELECT * FROM urls ORDER BY id DESC;")
+            urls = curs.fetchall()
 
     return render_template(
         'index.html',
@@ -41,9 +37,6 @@ def get_urls():
 
 @app.route('/urls', methods=['POST'])
 def post_url():
-    with conn.cursor as curs:
-        curs.execute('SELECT * FROM urls')
-        urls = curs.fetchall()
     user_url = request.form.to_dict()['url']
     normalized_url = normalize(user_url)
 
@@ -55,24 +48,41 @@ def post_url():
             url=user_url,
         ), 422
 
-    url_id = PLACEHOLDER_find_id(normalized_url)
-    if url_id:
-        flash('Страница уже существует', 'warning')
-        return redirect(url_for('get_url', id=url_id))
+    with open_connection() as conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+            curs.execute(
+                "SELECT * FROM urls WHERE name = %s;",
+                (normalized_url,)
+            )
+            url = curs.fetchone()
 
-    with conn.cursor as curs:
-        current_date = datetime.now().date()
-        curs.execute(f'INSERT INTO urls (name, created_at) VALUES (%s, %s), ({normalized_url}, {current_date})')
+        if url:
+            url_id = url.id
+            flash('Страница уже существует', 'warning')
+            return redirect(url_for('get_url', id=url_id))
+
+        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+            current_date = datetime.now().date()
+            curs.execute(
+                "INSERT INTO urls (name, created_at) VALUES (%s, %s);",
+                (normalized_url, current_date)
+            )
+            curs.execute(
+                "SELECT * FROM urls WHERE name = %s;",
+                (normalized_url,)
+            )
+            url = curs.fetchone()
+            url_id = url.id
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('get_url', id=url_id))
 
 
 @app.route('/urls/<int:id>')
 def get_url(id):
-    with conn.cursor as curs:
-        curs.execute('SELECT * FROM urls')
-        urls = curs.fetchall()
-    url = urls.PLACEHOLDER_find(id)
+    with open_connection() as conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+            curs.execute("SELECT * FROM urls WHERE id = %s;", (id,))
+            url = curs.fetchone()
 
     if not url:
         return 'Page not found', 404
