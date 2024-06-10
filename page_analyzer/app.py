@@ -26,7 +26,15 @@ def main_page():
 def get_urls():
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            curs.execute("SELECT * FROM urls ORDER BY id DESC;")
+            curs.execute("SELECT\
+            urls.id AS id,\
+            urls.name AS name,\
+            urls_checks.status_code AS status_code,\
+            MAX(urls_checks.created_at) AS created_at\
+            FROM urls\
+            LEFT JOIN urls_checks ON urls.id = urls_checks.url_id\
+            GROUP BY urls.id, urls.name, urls_checks.status_code\
+            ORDER BY urls.id DESC;")
             urls = curs.fetchall()
 
     return render_template(
