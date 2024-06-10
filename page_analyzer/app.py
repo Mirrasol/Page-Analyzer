@@ -85,7 +85,9 @@ def get_url(id):
             url = curs.fetchone()
 
     if not url:
-        return 'Page not found', 404
+        return render_template(
+            'not_found.html',
+        ), 404
 
     return render_template(
         'show.html',
