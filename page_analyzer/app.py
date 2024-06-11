@@ -6,12 +6,13 @@ from flask import (
     request,
     url_for,
 )
-from page_analyzer.validator import validate
-from page_analyzer.normalizer import normalize
-from page_analyzer.db_logic import open_connection
-from psycopg2.extras import NamedTupleCursor
 from datetime import datetime
+from page_analyzer.db_logic import open_connection
+from page_analyzer.normalizer import normalize
+from page_analyzer.validator import validate
+from psycopg2.extras import NamedTupleCursor
 import os
+import requests
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -112,17 +113,32 @@ def get_url(id):
 def make_check(id):
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            current_date = datetime.now().date()
-            curs.execute(
-                "INSERT INTO urls_checks (url_id, description, created_at)\
-                VALUES (%s, %s, %s);",
-                (id, None, current_date)
-            )
-            curs.execute(
-                "SELECT * FROM urls WHERE id = %s;",
-                (id,)
-            )
+            curs.execute("SELECT * FROM urls WHERE id = %s;", (id,))
             url = curs.fetchone()
             url_id = url.id
+            url_name = str(url.name)
+
+    check = requests.get(url_name)
+
+    try:
+        check.raise_for_status()
+    except requests.exceptions.RequestException:
+        flash('Произошла ошибка при проверке', 'danger')
+        return redirect(url_for('get_url', id=url_id))
+    else:
+        with open_connection() as conn:
+            with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+                current_date = datetime.now().date()
+                status_code = check.status_code
+                curs.execute(
+                    "INSERT INTO urls_checks (\
+                    url_id,\
+                    status_code,\
+                    description,\
+                    created_at\
+                    )\
+                    VALUES (%s, %s, %s, %s);",
+                    (id, status_code, None, current_date)
+                )
         flash('Страница успешно проверена', 'success')
         return redirect(url_for('get_url', id=url_id))
