@@ -118,11 +118,10 @@ def make_check(id):
             url_id = url.id
             url_name = str(url.name)
 
-    check = requests.get(url_name)
-
     try:
+        check = requests.get(url_name)
         check.raise_for_status()
-    except requests.exceptions.RequestException:
+    except requests.RequestException:
         flash('Произошла ошибка при проверке', 'danger')
         return redirect(url_for('get_url', id=url_id))
     else:
