@@ -130,7 +130,7 @@ def make_check(id):
         soup = BeautifulSoup(check.text, 'html.parser')
         h1 = soup.h1.string if soup.h1 else ''
         title = soup.title.string if soup.title else ''
-        description_tag = soup.find('meta', {'name': 'description'})
+        description_tag = soup.find('meta', attrs={'name': 'description'})
         description = description_tag['content'] if description_tag else ''
         current_date = datetime.now().date()
         with open_connection() as conn:
