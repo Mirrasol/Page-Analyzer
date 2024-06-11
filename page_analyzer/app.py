@@ -6,6 +6,7 @@ from flask import (
     request,
     url_for,
 )
+from bs4 import BeautifulSoup
 from datetime import datetime
 from page_analyzer.db_logic import open_connection
 from page_analyzer.normalizer import normalize
@@ -125,19 +126,26 @@ def make_check(id):
         flash('Произошла ошибка при проверке', 'danger')
         return redirect(url_for('get_url', id=url_id))
     else:
+        status_code = check.status_code
+        soup = BeautifulSoup(check.text, 'html.parser')
+        h1 = soup.h1.string if soup.h1 else ''
+        title = soup.title.string if soup.title else ''
+        description_tag = soup.find('meta', {'name': 'description'})
+        description = description_tag['content'] if description_tag else ''
+        current_date = datetime.now().date()
         with open_connection() as conn:
             with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-                current_date = datetime.now().date()
-                status_code = check.status_code
                 curs.execute(
                     "INSERT INTO urls_checks (\
                     url_id,\
                     status_code,\
+                    h1,\
+                    title,\
                     description,\
                     created_at\
                     )\
-                    VALUES (%s, %s, %s, %s);",
-                    (id, status_code, None, current_date)
+                    VALUES (%s, %s, %s, %s, %s, %s);",
+                    (id, status_code, h1, title, description, current_date)
                 )
         flash('Страница успешно проверена', 'success')
         return redirect(url_for('get_url', id=url_id))
