@@ -7,8 +7,8 @@ from flask import (
     url_for,
 )
 from page_analyzer.db_manager import (
-    get_url_data,
     get_urls_data,
+    get_url_data,
     get_url_checks,
     get_url_id,
     post_new_url,
