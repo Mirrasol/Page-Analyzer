@@ -50,3 +50,21 @@ def post_new_url(url_name):
                 "INSERT INTO urls (name, created_at) VALUES (%s, %s);",
                 (url_name, current_date)
             )
+
+
+def get_url_data(url_id):
+    with open_connection() as conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+            curs.execute("SELECT * FROM urls WHERE id = %s;", (url_id,))
+            url_data = curs.fetchone()
+    return url_data
+
+
+def get_url_checks(url_id):
+    with open_connection() as conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+            curs.execute("SELECT * FROM urls_checks\
+                WHERE url_id = %s\
+                ORDER BY id DESC;", (url_id,))
+            checks = curs.fetchall()
+    return checks

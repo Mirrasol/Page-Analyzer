@@ -9,7 +9,9 @@ from flask import (
 from bs4 import BeautifulSoup
 from datetime import datetime
 from page_analyzer.db_manager import (
+    get_url_data,
     get_urls_data,
+    get_url_checks,
     find_url_id,
     open_connection,
     post_new_url,
@@ -65,14 +67,8 @@ def post_url():
 
 @app.route('/urls/<int:id>')
 def get_url(id):
-    with open_connection() as conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            curs.execute("SELECT * FROM urls WHERE id = %s;", (id,))
-            url = curs.fetchone()
-            curs.execute("SELECT * FROM urls_checks\
-                WHERE url_id = %s\
-                ORDER BY id DESC;", (id,))
-            checks = curs.fetchall()
+    url = get_url_data(id)
+    checks = get_url_checks(id)
 
     if not url:
         return render_template(
