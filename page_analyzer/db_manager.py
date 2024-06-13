@@ -38,8 +38,8 @@ def find_url_id(url_name):
                 (url_name,)
             )
             url_data = curs.fetchone()
-            id = url_data.id
-    return id
+            url_id = url_data.id if url_data else None
+    return url_id
 
 
 def post_new_url(url_name):
