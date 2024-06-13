@@ -1,5 +1,6 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/Mirrasol/python-project-83/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Mirrasol/python-project-83/actions)
+[![Python CI](https://github.com/Mirrasol/python-project-83/actions/workflows/my_pyci.yml/badge.svg)](https://github.com/Mirrasol/python-project-83/actions/workflows/my_pyci.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/03255ed191683d44ec3b/maintainability)](https://codeclimate.com/github/Mirrasol/python-project-83/maintainability)
 
 Page Analyzer – a web-service that helps to analyze web-pages and determine their SEO usability.
