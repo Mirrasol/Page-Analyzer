@@ -8,7 +8,10 @@ from flask import (
 )
 from bs4 import BeautifulSoup
 from datetime import datetime
-from page_analyzer.db_logic import open_connection
+from page_analyzer.db_manager import (
+    get_urls_data,
+    open_connection,
+)
 from page_analyzer.normalizer import normalize
 from page_analyzer.validator import validate
 from psycopg2.extras import NamedTupleCursor
@@ -26,18 +29,7 @@ def main_page():
 
 @app.route('/urls')
 def get_urls():
-    with open_connection() as conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            curs.execute("SELECT\
-            urls.id AS id,\
-            urls.name AS name,\
-            urls_checks.status_code AS status_code,\
-            MAX(urls_checks.created_at) AS created_at\
-            FROM urls\
-            LEFT JOIN urls_checks ON urls.id = urls_checks.url_id\
-            GROUP BY urls.id, urls.name, urls_checks.status_code\
-            ORDER BY urls.id DESC;")
-            urls = curs.fetchall()
+    urls = get_urls_data()
 
     return render_template(
         'index.html',
@@ -128,8 +120,8 @@ def make_check(id):
     else:
         status_code = check.status_code
         soup = BeautifulSoup(check.text, 'html.parser')
-        h1 = soup.h1.string if soup.h1 else ''
-        title = soup.title.string if soup.title else ''
+        h1 = soup.h1.text if soup.h1 else ''
+        title = soup.title.text if soup.title else ''
         description_tag = soup.find('meta', attrs={'name': 'description'})
         description = description_tag['content'] if description_tag else ''
         current_date = datetime.now().date()
