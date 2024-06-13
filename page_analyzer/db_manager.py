@@ -30,7 +30,7 @@ def get_urls_data():
     return urls_data
 
 
-def find_url_id(url_name):
+def get_url_id(url_name):
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute(

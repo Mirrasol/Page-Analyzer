@@ -12,7 +12,7 @@ from page_analyzer.db_manager import (
     get_url_data,
     get_urls_data,
     get_url_checks,
-    find_url_id,
+    get_url_id,
     open_connection,
     post_new_url,
 )
@@ -54,13 +54,13 @@ def post_url():
             url=user_url,
         ), 422
 
-    url_id = find_url_id(normalized_url)
+    url_id = get_url_id(normalized_url)
     if url_id:
         flash('Страница уже существует', 'warning')
         return redirect(url_for('get_url', id=url_id))
     else:
         post_new_url(normalized_url)
-        url_id = find_url_id(normalized_url)
+        url_id = get_url_id(normalized_url)
         flash('Страница успешно добавлена', 'success')
         return redirect(url_for('get_url', id=url_id))
 
@@ -84,12 +84,9 @@ def get_url(id):
 
 @app.route('/urls/<int:id>/checks', methods=['POST'])
 def make_check(id):
-    with open_connection() as conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            curs.execute("SELECT * FROM urls WHERE id = %s;", (id,))
-            url = curs.fetchone()
-            url_id = url.id
-            url_name = str(url.name)
+    url = get_url_data(id)
+    url_id = url.id
+    url_name = url.name
 
     try:
         check = requests.get(url_name)
