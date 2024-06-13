@@ -74,7 +74,7 @@ def get_url(id):
         ), 404
 
     return render_template(
-        'show.html',
+        'show_url.html',
         url=url,
         checks=checks,
     )
