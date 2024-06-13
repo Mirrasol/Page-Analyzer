@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from page_analyzer.db_manager import (
     get_urls_data,
-    find_url,
+    find_url_id,
     open_connection,
     post_new_url,
 )
@@ -52,15 +52,13 @@ def post_url():
             url=user_url,
         ), 422
 
-    url = find_url(normalized_url)
-    if url:
-        url_id = url.id
+    url_id = find_url_id(normalized_url)
+    if url_id:
         flash('Страница уже существует', 'warning')
         return redirect(url_for('get_url', id=url_id))
     else:
         post_new_url(normalized_url)
-        url = find_url(normalized_url)
-        url_id = url.id
+        url_id = find_url_id(normalized_url)
         flash('Страница успешно добавлена', 'success')
         return redirect(url_for('get_url', id=url_id))
 

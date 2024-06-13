@@ -30,7 +30,7 @@ def get_urls_data():
     return urls_data
 
 
-def find_url(url_name):
+def find_url_id(url_name):
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute(
@@ -38,7 +38,8 @@ def find_url(url_name):
                 (url_name,)
             )
             url_data = curs.fetchone()
-    return url_data
+            id = url_data.id
+    return id
 
 
 def post_new_url(url_name):
