@@ -42,7 +42,7 @@ def get_url_id(url_name):
     return url_id
 
 
-def post_new_url(url_name):
+def add_new_url(url_name):
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             current_date = datetime.now().date()
@@ -70,7 +70,7 @@ def get_url_checks(url_id):
     return checks
 
 
-def post_new_check(id, status_code, h1, title, description, date):
+def add_new_check(id, status_code, h1, title, description, date):
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute(

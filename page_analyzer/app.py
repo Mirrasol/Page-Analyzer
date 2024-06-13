@@ -11,8 +11,8 @@ from page_analyzer.db_manager import (
     get_url_data,
     get_url_checks,
     get_url_id,
-    post_new_url,
-    post_new_check,
+    add_new_url,
+    add_new_check,
 )
 from page_analyzer.normalizer import normalize
 from page_analyzer.validator import validate
@@ -57,7 +57,7 @@ def post_url():
         flash('Страница уже существует', 'warning')
         return redirect(url_for('get_url', id=url_id))
     else:
-        post_new_url(normalized_url)
+        add_new_url(normalized_url)
         url_id = get_url_id(normalized_url)
         flash('Страница успешно добавлена', 'success')
         return redirect(url_for('get_url', id=url_id))
@@ -93,6 +93,6 @@ def make_check(id):
         return redirect(url_for('get_url', id=id))
     else:
         status_code, h1, title, description, current_date = parse_check(check)
-        post_new_check(id, status_code, h1, title, description, current_date)
+        add_new_check(id, status_code, h1, title, description, current_date)
         flash('Страница успешно проверена', 'success')
         return redirect(url_for('get_url', id=id))
