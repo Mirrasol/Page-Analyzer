@@ -6,19 +6,17 @@ from flask import (
     request,
     url_for,
 )
-from bs4 import BeautifulSoup
-from datetime import datetime
 from page_analyzer.db_manager import (
     get_url_data,
     get_urls_data,
     get_url_checks,
     get_url_id,
-    open_connection,
     post_new_url,
+    post_new_check,
 )
 from page_analyzer.normalizer import normalize
 from page_analyzer.validator import validate
-from psycopg2.extras import NamedTupleCursor
+from page_analyzer.parser import parse_check
 import os
 import requests
 
@@ -85,7 +83,6 @@ def get_url(id):
 @app.route('/urls/<int:id>/checks', methods=['POST'])
 def make_check(id):
     url = get_url_data(id)
-    url_id = url.id
     url_name = url.name
 
     try:
@@ -93,28 +90,9 @@ def make_check(id):
         check.raise_for_status()
     except requests.RequestException:
         flash('Произошла ошибка при проверке', 'danger')
-        return redirect(url_for('get_url', id=url_id))
+        return redirect(url_for('get_url', id=id))
     else:
-        status_code = check.status_code
-        soup = BeautifulSoup(check.text, 'html.parser')
-        h1 = soup.h1.text if soup.h1 else ''
-        title = soup.title.text if soup.title else ''
-        description_tag = soup.find('meta', attrs={'name': 'description'})
-        description = description_tag['content'] if description_tag else ''
-        current_date = datetime.now().date()
-        with open_connection() as conn:
-            with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-                curs.execute(
-                    "INSERT INTO urls_checks (\
-                    url_id,\
-                    status_code,\
-                    h1,\
-                    title,\
-                    description,\
-                    created_at\
-                    )\
-                    VALUES (%s, %s, %s, %s, %s, %s);",
-                    (id, status_code, h1, title, description, current_date)
-                )
+        status_code, h1, title, description, current_date = parse_check(check)
+        post_new_check(id, status_code, h1, title, description, current_date)
         flash('Страница успешно проверена', 'success')
-        return redirect(url_for('get_url', id=url_id))
+        return redirect(url_for('get_url', id=id))

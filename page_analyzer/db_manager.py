@@ -68,3 +68,20 @@ def get_url_checks(url_id):
                 ORDER BY id DESC;", (url_id,))
             checks = curs.fetchall()
     return checks
+
+
+def post_new_check(id, status_code, h1, title, description, date):
+    with open_connection() as conn:
+        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
+            curs.execute(
+                "INSERT INTO urls_checks (\
+                url_id,\
+                status_code,\
+                h1,\
+                title,\
+                description,\
+                created_at\
+                )\
+                VALUES (%s, %s, %s, %s, %s, %s);",
+                (id, status_code, h1, title, description, date)
+            )
