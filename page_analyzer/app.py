@@ -10,7 +10,9 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from page_analyzer.db_manager import (
     get_urls_data,
+    find_url,
     open_connection,
+    post_new_url,
 )
 from page_analyzer.normalizer import normalize
 from page_analyzer.validator import validate
@@ -50,33 +52,17 @@ def post_url():
             url=user_url,
         ), 422
 
-    with open_connection() as conn:
-        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            curs.execute(
-                "SELECT * FROM urls WHERE name = %s;",
-                (normalized_url,)
-            )
-            url = curs.fetchone()
-
-        if url:
-            url_id = url.id
-            flash('Страница уже существует', 'warning')
-            return redirect(url_for('get_url', id=url_id))
-
-        with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            current_date = datetime.now().date()
-            curs.execute(
-                "INSERT INTO urls (name, created_at) VALUES (%s, %s);",
-                (normalized_url, current_date)
-            )
-            curs.execute(
-                "SELECT * FROM urls WHERE name = %s;",
-                (normalized_url,)
-            )
-            url = curs.fetchone()
-            url_id = url.id
-    flash('Страница успешно добавлена', 'success')
-    return redirect(url_for('get_url', id=url_id))
+    url = find_url(normalized_url)
+    if url:
+        url_id = url.id
+        flash('Страница уже существует', 'warning')
+        return redirect(url_for('get_url', id=url_id))
+    else:
+        post_new_url(normalized_url)
+        url = find_url(normalized_url)
+        url_id = url.id
+        flash('Страница успешно добавлена', 'success')
+        return redirect(url_for('get_url', id=url_id))
 
 
 @app.route('/urls/<int:id>')
