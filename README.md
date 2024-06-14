@@ -21,7 +21,7 @@ Don't for get to create the .env file that contains your secret key and informat
 
 `DATABASE_URL = {provider}://{user}:{password}@{host}:{port}/{db}`
 
-After that create your database using the commands from database.sql
+After that set up your database using the commands from database.sql
 
 Check Makefile for the rest of the available commands.
 

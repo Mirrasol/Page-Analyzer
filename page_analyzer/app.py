@@ -81,7 +81,7 @@ def get_url(id):
 
 
 @app.route('/urls/<int:id>/checks', methods=['POST'])
-def make_check(id):
+def post_check(id):
     url = get_url_data(id)
     url_name = url.name
 
