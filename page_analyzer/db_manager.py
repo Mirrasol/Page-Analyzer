@@ -10,11 +10,13 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 
 
 def open_connection():
+    """Open connection to the database."""
     conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 
 def get_urls_data():
+    """Get all data from the table: urls."""
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute("SELECT\
@@ -31,6 +33,7 @@ def get_urls_data():
 
 
 def get_url_id(url_name):
+    """Get the id of the given url name."""
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute(
@@ -43,6 +46,7 @@ def get_url_id(url_name):
 
 
 def add_new_url(url_name):
+    """Add new entry to the table: urls."""
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             current_date = datetime.now().date()
@@ -53,6 +57,7 @@ def add_new_url(url_name):
 
 
 def get_url_data(url_id):
+    """Get all data on the given url id from the table: urls."""
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute("SELECT * FROM urls WHERE id = %s;", (url_id,))
@@ -61,6 +66,7 @@ def get_url_data(url_id):
 
 
 def get_url_checks(url_id):
+    """Get all checks of the given url id from the table: urls_checks."""
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute("SELECT * FROM urls_checks\
@@ -71,6 +77,7 @@ def get_url_checks(url_id):
 
 
 def add_new_check(id, status_code, h1, title, description, date):
+    """Add new entry to the table: urls_checks."""
     with open_connection() as conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
             curs.execute(

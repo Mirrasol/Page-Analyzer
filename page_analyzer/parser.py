@@ -3,6 +3,7 @@ from datetime import datetime
 
 
 def parse_check(check):
+    """Parse the given response data."""
     check_data = check.text
     soup = BeautifulSoup(check_data, 'html.parser')
     status_code = check.status_code
