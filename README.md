@@ -3,7 +3,7 @@
 [![Python CI](https://github.com/Mirrasol/python-project-83/actions/workflows/my_pyci.yml/badge.svg)](https://github.com/Mirrasol/python-project-83/actions/workflows/my_pyci.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/03255ed191683d44ec3b/maintainability)](https://codeclimate.com/github/Mirrasol/python-project-83/maintainability)
 
-Page Analyzer – a web-service that helps to analyze web-pages and determine their SEO usability.
+Page Analyzer – a web-service that helps to analyze web-pages and determine their SEO usability. It gathers basic relevant data about a web-page: the response code, headers and short description - and organizes it in the table form.
 
 
 ## 1) Installation
