@@ -17,9 +17,11 @@ from page_analyzer.db_manager import (
 from page_analyzer.normalizer import normalize
 from page_analyzer.validator import validate
 from page_analyzer.parser import parse_check
+from dotenv import load_dotenv
 import os
 import requests
 
+load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
