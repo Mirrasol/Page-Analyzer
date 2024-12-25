@@ -9,3 +9,4 @@ coverage/
 test-coverage-tool
 coverage.xml
 .pytest_cache/
+.idea/
