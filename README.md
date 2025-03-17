@@ -1,5 +1,4 @@
 ### Hexlet tests and linter status:
-[![Actions Status](https://github.com/Mirrasol/python-project-83/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Mirrasol/python-project-83/actions)
 [![Python CI](https://github.com/Mirrasol/python-project-83/actions/workflows/my_pyci.yml/badge.svg)](https://github.com/Mirrasol/python-project-83/actions/workflows/my_pyci.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/03255ed191683d44ec3b/maintainability)](https://codeclimate.com/github/Mirrasol/python-project-83/maintainability)
 
@@ -28,6 +27,12 @@ Check Makefile for the rest of the available commands.
 
 ## 2) Demo Web-page
 
-Check an example web-page (hosted on Render.com):
+Check an example web-page screenshots:
 
-https://python-project-83-20ew.onrender.com
+![1](https://github.com/user-attachments/assets/6418e73d-34af-4149-9b99-29f432db5ea4)
+
+![2](https://github.com/user-attachments/assets/9be88698-4d67-41e0-8f91-da16acdd8834)
+
+![3](https://github.com/user-attachments/assets/b283cf63-2620-4e57-8ad8-7f80ea313d1e)
+
+
